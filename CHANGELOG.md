@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.1.1] 2026-05-11
+
+### Added
+- `examples/framework-hooks/` with `pre-commit`, `pre-push`, `install.sh`, and README. Tracked versions of the framework-side git hooks that previously lived only in untracked `.git/hooks/`. Contributors can now install them with one command.
+- README cross-references to both `examples/framework-hooks/` and `examples/vault-hooks/`.
+
+### Changed
+- `pre-push` sensitive-content pattern tightened to `LDL XX mg/dL` (was `LDL XX mg`) to reduce false positives on prose like "LDL <100 mg/dL".
+
 ## [0.1.0] 2026-05-11
 
 First public release. The framework is usable end-to-end for personal health, nutrition, and fitness coaching with Claude Code, scoped to Indian (Maharashtra / Vidarbha) defaults but adaptable.

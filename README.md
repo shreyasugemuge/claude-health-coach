@@ -125,9 +125,17 @@ If you accidentally try to log a meal in the framework, or edit a skill from you
 |---|---|---|---|
 | **Claude Code PreToolUse hook** | `.claude/hooks/enforce-mode-boundary.sh` | Before `Edit`/`Write`/`MultiEdit`/`NotebookEdit` runs | Reads the file path, checks for `.is-personal-vault` marker in `$CLAUDE_PROJECT_DIR`, blocks the wrong combination with a clear message and `exit 2`. |
 | **`.gitignore`** | Framework: aggressive (blocks personal-data paths). Vault: minimal (tracks personal data for backup). | When `git add` runs | Personal-data paths cannot enter the framework's index. |
-| **`pre-commit` + `pre-push`** | Both `.git/hooks/` | At commit and push time | Last line of defense. The vault `pre-push` refuses pushes to PUBLIC GitHub remotes. |
+| **`pre-commit` + `pre-push`** | Both `.git/hooks/` | At commit and push time | Last line of defense. Framework hooks block personal-data paths and sensitive content patterns; vault `pre-push` refuses pushes to PUBLIC GitHub remotes. |
 
 First time a Claude Code session loads this project, you'll be asked to approve the hook configuration. Approve once and it stays.
+
+If you forked this repo or plan to contribute, install the framework-side git hooks once:
+
+```sh
+sh examples/framework-hooks/install.sh
+```
+
+See [`examples/framework-hooks/`](./examples/framework-hooks/) and [`examples/vault-hooks/`](./examples/vault-hooks/) for the two installers.
 
 ## Sample vault
 

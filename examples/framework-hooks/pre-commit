@@ -1,0 +1,26 @@
+#!/bin/sh
+# FRAMEWORK pre-commit hook
+# Block any personal-data paths from being committed to the framework repo.
+# Defense-in-depth: .gitignore should already prevent these, but if someone
+# does `git add -f`, this hook stops it.
+
+forbidden_paths='^(wiki/profile/|wiki/biomarkers/|wiki/logs/|wiki/targets/|wiki/plans/|wiki/food-library/|wiki/calendar/|wiki/reviews/|wiki/design/|raw/|index\.md$|hot\.md$|log\.md$|\.is-personal-vault$)'
+
+staged=$(git diff --cached --name-only)
+violations=$(echo "$staged" | grep -E "$forbidden_paths" 2>/dev/null)
+
+if [ -n "$violations" ]; then
+  echo "✗ FRAMEWORK pre-commit BLOCKED: personal-data paths in staged changes:"
+  echo ""
+  echo "$violations" | sed 's/^/  /'
+  echo ""
+  echo "These belong in your PERSONAL VAULT, not the framework."
+  echo "Switch to your vault directory and commit there."
+  echo ""
+  echo "If this is a sanitized template/example, put it under wiki-template/ or examples/."
+  echo ""
+  echo "(To override in an emergency: git commit --no-verify)"
+  exit 1
+fi
+
+exit 0

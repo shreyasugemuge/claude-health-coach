@@ -1,0 +1,45 @@
+#!/bin/sh
+# FRAMEWORK pre-push hook
+# Re-check pushed commits don't contain personal data or sensitive patterns.
+# This catches anything that slipped past pre-commit (or was force-added).
+
+forbidden_paths='^(wiki/profile/|wiki/biomarkers/|wiki/logs/|wiki/targets/|wiki/plans/|wiki/food-library/|wiki/calendar/|wiki/reviews/|wiki/design/|raw/|index\.md$|hot\.md$|log\.md$|\.is-personal-vault$)'
+
+# Sensitive content patterns (extend this list as the project grows)
+sensitive_patterns='(HbA1c [0-9]+\.[0-9]+ %|LDL [0-9]{2,} mg/dL)'
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Skip branch deletions
+  if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    continue
+  fi
+
+  # Determine the range of commits being pushed
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    range="$local_sha"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+
+  # Path-based check
+  files=$(git diff --name-only "$range" 2>/dev/null | grep -E "$forbidden_paths" 2>/dev/null)
+  if [ -n "$files" ]; then
+    echo "✗ FRAMEWORK pre-push BLOCKED: personal-data paths in commits being pushed:"
+    echo "$files" | sed 's/^/  /'
+    echo ""
+    echo "(To override in an emergency: git push --no-verify)"
+    exit 1
+  fi
+
+  # Content-based check
+  if git log "$range" -p 2>/dev/null | grep -qE "$sensitive_patterns" 2>/dev/null; then
+    echo "✗ FRAMEWORK pre-push BLOCKED: sensitive content patterns detected in commits."
+    echo "  (Found: emails, specific lab values, or other PII signatures)"
+    echo "  Review your commits before pushing to a public remote."
+    echo ""
+    echo "(To override in an emergency: git push --no-verify)"
+    exit 1
+  fi
+done
+
+exit 0
