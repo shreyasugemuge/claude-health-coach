@@ -1,3 +1,13 @@
+---
+kcal: 1750
+protein_g: 105
+fiber_g: 30
+sodium_mg: 2300
+added_sugar_g: 25
+cooking_oil_g: 25
+effective_from: 2026-05-01
+---
+
 # Current targets
 
 Effective from 2026-05-01. Review at end of each 4-week block.

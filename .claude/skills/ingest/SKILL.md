@@ -26,7 +26,7 @@ Process any file in `raw/`, integrate findings into the wiki. NEVER modify the r
 2. Identify lab provider (Thyrocare, Healthians, Lal PathLabs, Metropolis, etc.) from the header.
 3. Extract every value: name, unit, reference range, the user's value.
 4. Normalize units (e.g., glucose mg/dL vs mmol/L; B12 pg/mL vs pmol/L).
-5. Update biomarker files with timestamped rows:
+5. Update biomarker files with timestamped rows in the body table:
    - Lipid panel → `wiki/biomarkers/lipid.md`
    - HbA1c, FPG, insulin, C-peptide → `wiki/biomarkers/glycemic.md`
    - LFT (ALT, AST, GGT, ALP, bilirubin) → `wiki/biomarkers/liver.md`
@@ -34,6 +34,11 @@ Process any file in `raw/`, integrate findings into the wiki. NEVER modify the r
    - B12, Vit D, ferritin, iron, magnesium, folate → `wiki/biomarkers/micronutrients.md`
    - Creatinine, urea, eGFR, uric acid → `wiki/biomarkers/kidney.md`
    - CBC (Hb, WBC, platelets, RBC indices) → `wiki/biomarkers/cbc.md`
+
+   In the SAME edit, update the YAML frontmatter at the top of that file (per Frontmatter contract in CLAUDE.md):
+   - Append a new entry to the `log:` array with this reading's metrics.
+   - Overwrite the `latest:` block with the most recent reading.
+   The body and frontmatter must stay in lockstep. The Obsidian dashboard reads `latest` for the snapshot view.
 6. Compare against India thresholds in CLAUDE.md (LAI 2024 lipid, ICMR/ADA glycemic, India-specific micronutrient cutoffs). Flag abnormals.
 7. If any value triggers a diagnosis or category change (e.g., HbA1c crosses 5.7 → prediabetes, LDL crosses 100 → at-risk, B12 <200 pg/mL → deficient), update `wiki/profile/medical.md` and consider whether `wiki/targets/current.md` needs adjustment.
 8. Generate `wiki/reviews/biomarker-events/YYYY-MM-DD-<labname>.md`:

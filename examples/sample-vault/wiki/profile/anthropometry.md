@@ -1,3 +1,14 @@
+---
+height_cm: 158
+weight_log:
+  - [2026-04-25, 74.0, "baseline at onboarding"]
+  - [2026-05-02, 68.6, "end of week 1"]
+  - [2026-05-09, 68.2, "end of week 2"]
+waist_log:
+  - [2026-04-25, 92, 102, 0.90]
+  - [2026-05-09, 90, 101, 0.89]
+---
+
 # Anthropometry
 
 Height: 158 cm.

@@ -53,21 +53,23 @@ User drops a photo (in chat or to `raw/photos/`).
 
 User: "weighed 78.4 this morning" or "weight is 78.4"
 
-1. Append timestamped row to `wiki/profile/anthropometry.md`.
-2. Recompute 7-day moving average.
-3. Compare to last week's MA, flag direction (down / flat / up) vs goal.
-4. Update `hot.md` with current weight + MA.
-5. Append to `log.md`: `## [DATE TIME] weigh | 78.4 kg, 7d MA: X.X (↓/→/↑)`.
-6. Return: "Logged. 7-day MA is X.X kg, trending [↓/→/↑] vs last week."
+1. Append timestamped row to `wiki/profile/anthropometry.md` body table.
+2. Also append `[date, kg, note]` tuple to the `weight_log` array in that file's YAML frontmatter (per Frontmatter contract in CLAUDE.md). Body table and frontmatter must stay in lockstep.
+3. Recompute 7-day moving average.
+4. Compare to last week's MA, flag direction (down / flat / up) vs goal.
+5. Update `hot.md` with current weight + MA.
+6. Append to `log.md`: `## [DATE TIME] weigh | 78.4 kg, 7d MA: X.X (↓/→/↑)`.
+7. Return: "Logged. 7-day MA is X.X kg, trending [↓/→/↑] vs last week."
 
 ### Body measurements
 
 User: "waist 92cm, hip 102cm" or drops a body comp photo to `raw/photos/body/`
 
 1. Append timestamped row to `wiki/biomarkers/body-composition.md`.
-2. If photo: file as `raw/photos/body/YYYY-MM-{front,side,back}.jpg`; reference in body-composition.md.
-3. If both tape + photo provided, store together in same row.
-4. Append to `log.md`: `## [DATE TIME] body-comp | waist X, hip Y, photo Z`.
+2. If tape measurements are provided, also append `[date, waist_cm, hip_cm, whr]` tuple to the `waist_log` array in `wiki/profile/anthropometry.md` frontmatter (per Frontmatter contract).
+3. If photo: file as `raw/photos/body/YYYY-MM-{front,side,back}.jpg`; reference in body-composition.md.
+4. If both tape + photo provided, store together in same row.
+5. Append to `log.md`: `## [DATE TIME] body-comp | waist X, hip Y, photo Z`.
 
 ### Workout log
 
@@ -106,6 +108,28 @@ User: "took my B12 and Vit D" or "skipped omega-3" or "started new magnesium"
 4. If new supplement: prompt to add to `wiki/profile/supplements.md` with brand/dose/timing.
 5. Append to `log.md`: `## [DATE TIME] supplement | <taken/skipped/added>`.
 
+## End-of-day close
+
+When the user signals end of day ("done eating", "closing out the day", evening reflection complete, or at midnight on the next session), finalize today's daily log:
+
+1. Write the "Daily totals" section with kcal_actual / kcal_target, protein_actual / target, fiber, sodium estimate.
+2. Write the YAML frontmatter block at the top of the file per the Frontmatter contract in CLAUDE.md:
+   ```yaml
+   ---
+   date: YYYY-MM-DD
+   kcal_actual: <int>
+   protein_g_actual: <int>
+   fiber_g_actual: <int>
+   weight_kg: <float>        # only if weighed today
+   energy_score: <1-10>      # if logged
+   sleep_hours: <float>      # if logged
+   sleep_score: <1-10>       # if logged
+   workout: <true|false>
+   ---
+   ```
+   This block is what powers the Obsidian dashboard's "Today" panel and 30-day adherence view. Without it, the day shows as "no data."
+3. Append to `log.md`: `## [DATE TIME] note | day closed, <one-line summary>`.
+
 ## Bookkeeping (always)
 
 After every log event:
@@ -114,3 +138,4 @@ After every log event:
 3. If a new food was added to food-library, update `index.md`.
 4. Refresh `hot.md` only if event is materially recent context (new weight, new PR, recurring symptom, biomarker-relevant beverage pattern).
 5. Cross-link related wiki pages (e.g., a Saoji entry → vidarbha-cuisine.md when that exists).
+6. If the event is a weigh-in or body-comp measurement, the relevant frontmatter block in `wiki/profile/anthropometry.md` was updated in the same edit (see Weight log / Body measurements sub-flows).

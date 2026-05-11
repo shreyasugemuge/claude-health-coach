@@ -2,6 +2,27 @@
 
 All notable changes to this project are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows [SemVer](https://semver.org/).
 
+## [0.2.0] 2026-05-11
+
+Adds an optional read-only UI surfaced inside Obsidian, powered by YAML frontmatter that Claude maintains automatically. No web server, no SQLite, no new build tools. Two community plugins (DataView + Obsidian Charts) and a single `dashboard.md` file.
+
+### Added
+- **"Frontmatter contract" section in `CLAUDE.md`**: defines the YAML frontmatter schemas for four file types (`wiki/profile/anthropometry.md`, `wiki/targets/current.md`, `wiki/biomarkers/*.md`, daily logs at end-of-day). Single source of truth for how the body and machine-readable frontmatter stay in sync.
+- **`wiki-template/dashboard.md`**: a DataviewJS dashboard with five panels (Today macros, Weight trend chart, Latest biomarkers snapshot with color-coded thresholds, 30-day adherence table, Recent activity feed from `log.md`).
+- **Daily log template now includes an end-of-day frontmatter block** (CLAUDE.md). Written once per day when the "Daily totals" section is finalized.
+- **Skill updates**:
+  - `log`: on weigh-in, also appends to `weight_log` frontmatter array. On body-comp, also appends to `waist_log`. New "End-of-day close" sub-flow writes the daily log frontmatter.
+  - `ingest`: on bloodwork ingest, also updates the biomarker file's `log` array and `latest` block in frontmatter.
+  - `checkin`: target changes now rewrite the targets file's frontmatter alongside the body table.
+- **Bookkeeping rule 5** in CLAUDE.md: explicit "update frontmatter when the operation is a weigh-in, body-comp, bloodwork ingest, target change, or end-of-day close."
+- **README**: new "Obsidian dashboard (optional UI)" section explaining plugin install, dashboard copy step, and how the frontmatter layer works.
+- Sample vault files (`anthropometry.md`, `targets/current.md`, `biomarkers/lipid.md`, `logs/2026/05/09.md`) now demonstrate the frontmatter format.
+
+### Design notes
+- Claude remains the primary writer. The dashboard is read-only; no write-back forms.
+- Frontmatter is additive on the four target files. The rest of the wiki (`log.md`, `hot.md`, `index.md`, profile prose, plans, reviews) is unchanged.
+- Append-only invariant preserved: weight and biomarker logs accumulate tuples; targets rewrites are wholesale; daily log frontmatter is written once per day.
+
 ## [0.1.1] 2026-05-11
 
 ### Added

@@ -98,7 +98,7 @@ Save → `wiki/profile/constraints.md`, `wiki/profile/lifestyle.md`.
 5. Fiber 35 to 40 g/day.
 6. ICMR caps (salt ≤5g, oil 25-30g, sugar 20-25g).
 7. Asian-Indian risk overlay if relevant.
-8. Write `wiki/targets/current.md` with all the above + reasoning.
+8. Write `wiki/targets/current.md` with all the above + reasoning. Include a YAML frontmatter block at the top with `kcal`, `protein_g`, `fiber_g`, `sodium_mg`, `added_sugar_g`, `cooking_oil_g`, `effective_from` (per Frontmatter contract in CLAUDE.md). This is what the Obsidian dashboard reads to compute today's progress bars.
 9. Write `wiki/targets/protocol.md` (current dieting approach, why this protocol).
 10. Generate `wiki/plans/current-week-meals.md` (7-day plan respecting kitchen rotation, with one favorite/splurge baked in).
 11. Generate `wiki/plans/current-week-workouts.md` (gym schedule + walks, recovery-aware).
@@ -131,7 +131,7 @@ Bookkeeping:
 - Update `hot.md`.
 - Append `## [DATE TIME] checkin | weekly` to `log.md`.
 
-Adjust `wiki/targets/current.md` ONLY if data demands it. One change per week max.
+Adjust `wiki/targets/current.md` ONLY if data demands it. One change per week max. When you do change a target, rewrite the YAML frontmatter block at the top of the file alongside the body table edit (per Frontmatter contract in CLAUDE.md), and bump `effective_from` to today's date.
 
 ### Monthly (~15 min, target 1st of month)
 

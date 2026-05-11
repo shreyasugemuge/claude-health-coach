@@ -1,3 +1,17 @@
+---
+latest:
+  date: 2026-05-07
+  LDL: 142
+  HDL: 48
+  TG: 168
+  TC: 218
+  non_HDL: 170
+  lab: Thyrocare
+log:
+  - {date: 2025-11-12, LDL: 128, HDL: 51, TG: 152, TC: 207, non_HDL: 156, lab: Thyrocare}
+  - {date: 2026-05-07, LDL: 142, HDL: 48, TG: 168, TC: 218, non_HDL: 170, lab: Thyrocare}
+---
+
 # Lipid panel
 
 Most recent first. Thresholds: Lipid Association of India (LAI) 2024.

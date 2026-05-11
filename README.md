@@ -95,11 +95,40 @@ git commit -m "init my personal vault"
 # 7. (Recommended) install the vault-side git hooks
 sh ~/Code/claude-health-coach/examples/vault-hooks/install.sh
 
-# 8. Open in Claude Code
+# 8. (Optional) copy the dashboard into your vault for the Obsidian UI
+cp ~/Code/claude-health-coach/wiki-template/dashboard.md dashboard.md
+
+# 9. Open in Claude Code
 claude
 ```
 
 Then talk to it: "let's start" runs onboarding.
+
+## Obsidian dashboard (optional UI)
+
+Claude is the coach. The dashboard is a read-only window on what Claude has already written, surfaced in Obsidian alongside your editor.
+
+What it shows:
+- **Today**: kcal and protein progress vs your current targets.
+- **Weight trend**: line chart of the last 60 weigh-ins from `wiki/profile/anthropometry.md`.
+- **Latest biomarkers**: snapshot table colored against LAI 2024 / ICMR cutoffs.
+- **30-day adherence**: per-day kcal, protein, weight, and a green/yellow/red band.
+- **Recent activity**: last 20 entries from `log.md`.
+
+Setup, one time:
+
+1. Install [Obsidian](https://obsidian.md/) and open your vault directory as an Obsidian vault.
+2. Install the two community plugins from inside Obsidian (Settings → Community plugins):
+   - **Dataview** (ID: `dataview`)
+   - **Obsidian Charts** (ID: `obsidian-charts`)
+3. Copy `dashboard.md` from `wiki-template/` into your vault root (step 8 of the install above does this).
+4. Open `dashboard.md` in reading view.
+
+How the data layer works:
+
+Claude maintains a YAML frontmatter block at the top of four file types (`wiki/profile/anthropometry.md`, `wiki/targets/current.md`, `wiki/biomarkers/*.md`, today's `wiki/logs/YYYY/MM/DD.md` at end-of-day). The dashboard's DataView queries read those blocks directly. The full schema and update rules live in the "Frontmatter contract" section of `CLAUDE.md` so every Claude session knows the contract. You never edit frontmatter by hand; the skills (`log`, `ingest`, `checkin`) write both the human-readable body and the machine-readable frontmatter in the same edit.
+
+See [`examples/sample-vault/`](./examples/sample-vault/) for example files with the frontmatter populated.
 
 ## Updating the framework
 

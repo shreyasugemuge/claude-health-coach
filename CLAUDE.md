@@ -88,6 +88,80 @@ System:
 - `.claude/skills/<name>/SKILL.md` skill files (auto-discoverable by description)
 - `.claude/commands/health/<name>.md` namespaced slash command shortcuts, invoked as `/health:<name>` (parallel layer to skills; namespaced to avoid collision with built-in `/help`, `/review`, etc.)
 
+## Frontmatter contract (machine-readable data layer)
+
+A small set of wiki files carry YAML frontmatter so the Obsidian dashboard (`wiki-template/dashboard.md`, copied or linked into the vault) can render charts and progress bars without parsing prose. The body of each file remains the human-readable source of truth; the frontmatter is the projection consumed by the UI.
+
+Keep the two in sync. The body is for humans; the frontmatter is for the dashboard. Do not let them drift.
+
+### `wiki/profile/anthropometry.md`
+
+```yaml
+---
+height_cm: 158
+weight_log:
+  - [YYYY-MM-DD, kg, "optional note"]
+waist_log:
+  - [YYYY-MM-DD, waist_cm, hip_cm, whr]
+---
+```
+
+Append-only. On every weigh-in, push a new `[date, kg, note]` tuple onto `weight_log` AND append the same row to the markdown table. Never edit existing tuples. Same pattern for `waist_log` on body-comp measurements.
+
+### `wiki/targets/current.md`
+
+```yaml
+---
+kcal: 1750
+protein_g: 105
+fiber_g: 30
+sodium_mg: 2300
+added_sugar_g: 25
+cooking_oil_g: 25
+effective_from: YYYY-MM-DD
+---
+```
+
+Rewrite the whole block on every target change (target-change event). Keep the markdown table in the body matching.
+
+### `wiki/biomarkers/*.md` (lipid, glycemic, liver, thyroid, micronutrients, kidney, cbc)
+
+```yaml
+---
+latest:
+  date: YYYY-MM-DD
+  <metric>: <value>
+  ...
+  lab: <lab name>
+log:
+  - {date: YYYY-MM-DD, <metric>: <value>, ..., lab: <lab>}
+---
+```
+
+On every bloodwork ingest, append a new entry to `log` AND overwrite `latest` with the most recent reading. The metrics inside `latest` and each `log` entry are whatever applies to that panel (LDL, HDL, TG, TC for lipid; HbA1c, FPG, insulin for glycemic; etc.). The body table mirrors the same data for human reading.
+
+### `wiki/logs/YYYY/MM/DD.md`
+
+```yaml
+---
+date: YYYY-MM-DD
+kcal_actual: 1580
+protein_g_actual: 78
+fiber_g_actual: 24
+weight_kg: 68.2          # optional; only if weighed today
+energy_score: 7          # optional; from morning check-in
+sleep_hours: 7.2         # optional
+sleep_score: 7           # optional; Oura readiness or manual 1-10
+workout: true            # optional; true if any resistance/cardio session logged
+---
+```
+
+Write this frontmatter ONCE per day, at end-of-day, when the "Daily totals" section is finalized. During the day the file has no frontmatter; the dashboard's "Today" panel reads the daily log as in-progress.
+
+### Files that do NOT get frontmatter
+
+`log.md`, `hot.md`, `index.md`, `wiki/profile/identity.md`, `wiki/profile/goals.md`, `wiki/profile/preferences.md`, `wiki/profile/medical.md`, `wiki/profile/kitchen.md`, `wiki/plans/*`, `wiki/reviews/*`, `wiki/calendar/*`, `wiki/food-library/*`. These are read by humans or by Claude; the dashboard does not query them via DataView.
+
 ## Operating defaults (India-specific, ship as-is)
 
 Apply Asian-Indian thresholds throughout. Do not silently fall back to WHO global cutoffs.
@@ -125,6 +199,19 @@ Apply Asian-Indian thresholds throughout. Do not silently fall back to WHO globa
 Each `wiki/logs/YYYY/MM/DD.md` follows this template (you create on first event of the day; sections are optional, build what's relevant).
 
 ```markdown
+---
+# At end-of-day only. See "Frontmatter contract" above for full schema.
+date: YYYY-MM-DD
+kcal_actual: <int>
+protein_g_actual: <int>
+fiber_g_actual: <int>
+weight_kg: <float>      # optional, only if weighed today
+energy_score: <1-10>    # optional
+sleep_hours: <float>    # optional
+sleep_score: <1-10>     # optional
+workout: <true|false>   # optional
+---
+
 # YYYY-MM-DD (DayName, week WXX)
 
 ## Morning check-in
@@ -196,6 +283,7 @@ Every operation that mutates the wiki MUST also:
 2. Update `index.md` if a new page was created or an existing page got a new dimension worth cataloging.
 3. Update `hot.md` if the change is recent context worth carrying forward (last 14 days). Trim entries older than 14 days when you touch this file.
 4. Cross-link related wiki pages with relative markdown links so Obsidian's graph view stays useful.
+5. If the operation is a weigh-in, body-comp measurement, bloodwork ingest, target change, or end-of-day daily-total finalization, update the relevant file's YAML frontmatter block per the "Frontmatter contract" section above. The body and the frontmatter are written in the same edit.
 
 Never edit anything in `raw/`. Those files are sources of truth.
 
