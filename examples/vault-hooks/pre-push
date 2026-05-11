@@ -1,0 +1,62 @@
+#!/bin/sh
+# Vault pre-push: refuse to push the personal vault to a remote that looks
+# public. This is a guardrail against the most common accident: a vault
+# pointed at a public GitHub repo by mistake.
+#
+# Heuristic: if the push remote is on github.com and the repo visibility is
+# "public" (queried via gh if available), block. Override by passing
+# ALLOW_PUBLIC_VAULT_PUSH=1 in the environment.
+#
+# Install: see ./install.sh.
+
+set -e
+
+if [ "$ALLOW_PUBLIC_VAULT_PUSH" = "1" ]; then
+  exit 0
+fi
+
+if [ ! -f ".is-personal-vault" ]; then
+  # Not a vault; nothing to enforce.
+  exit 0
+fi
+
+remote_name=$1
+remote_url=$2
+
+case "$remote_url" in
+  *github.com[:/]*) ;;
+  *) exit 0 ;;
+esac
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "⚠️  vault pre-push: gh not installed, cannot verify remote visibility." >&2
+  echo "   Pushing a vault to GitHub without verification. Re-run with" >&2
+  echo "   ALLOW_PUBLIC_VAULT_PUSH=1 to bypass, or install gh first." >&2
+  exit 1
+fi
+
+# Parse owner/repo out of the URL.
+slug=$(printf '%s' "$remote_url" \
+  | sed -E 's#^.*github.com[:/]([^/]+/[^/.]+)(\.git)?$#\1#')
+
+visibility=$(gh repo view "$slug" --json visibility -q .visibility 2>/dev/null || echo "")
+
+if [ "$visibility" = "PUBLIC" ]; then
+  cat >&2 <<EOF
+🛑 vault pre-push: refusing to push to a PUBLIC remote.
+
+  Remote: $remote_name ($remote_url)
+  Repo:   $slug (visibility: PUBLIC)
+
+  Your personal health vault contains medical data. Pushing to a public
+  GitHub repository is almost certainly not what you want.
+
+  Fix one of:
+    1. Change the remote to a private repo, OR
+    2. Make $slug private (gh repo edit $slug --visibility private), OR
+    3. Bypass intentionally: ALLOW_PUBLIC_VAULT_PUSH=1 git push ...
+EOF
+  exit 1
+fi
+
+exit 0
